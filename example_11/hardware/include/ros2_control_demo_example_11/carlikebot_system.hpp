@@ -104,8 +104,8 @@ public:
 private:
   ArduinoComms comms_;
   Config cfg_;
-  wheel wheel_front;
-  wheel wheel_rear;
+  Wheel wheel_front;
+  Wheel wheel_rear;
 
 };
 
