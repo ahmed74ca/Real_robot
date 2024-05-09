@@ -33,9 +33,6 @@
 #include "rclcpp_lifecycle/state.hpp"
 
 #include "ros2_control_demo_example_11/visibility_control.h"
-#include "ros2_control_demo_example_11/arduino_comms.hpp"
-#include "ros2_control_demo_example_11/wheel.hpp"
-
 
 namespace ros2_control_demo_example_11
 {
@@ -62,16 +59,6 @@ struct Joint
 };
 class CarlikeBotSystemHardware : public hardware_interface::SystemInterface
 {
-  struct Config
-    {
-      std::string rear_wheel_name = "";
-      std::string front_wheel_name = "";
-      float loop_rate = 0.0;
-      std::string device = "";
-      int baud_rate = 0;
-      int timeout_ms = 0;
-    };
-
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(CarlikeBotSystemHardware);
 
@@ -102,11 +89,13 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
-  ArduinoComms comms_;
-  Config cfg_;
-  Wheel wheel_front;
-  Wheel wheel_rear;
+  // Parameters for the CarlikeBot simulation
+  double hw_start_sec_;
+  double hw_stop_sec_;
 
+  // std::vector<std::tuple<std::string, double, double>>
+  //   hw_interfaces_;  // name of joint, state, command
+  std::map<std::string, Joint> hw_interfaces_;
 };
 
 }  // namespace ros2_control_demo_example_11

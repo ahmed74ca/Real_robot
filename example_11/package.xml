@@ -19,7 +19,6 @@
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
-  <depend>libserial-dev</depend>
 
   <exec_depend>bicycle_steering_controller</exec_depend>
   <exec_depend>controller_manager</exec_depend>

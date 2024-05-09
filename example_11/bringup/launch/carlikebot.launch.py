@@ -21,6 +21,21 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
+import os
+
+from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import Node
+import launch_ros
+
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+
+import xacro
 
 def generate_launch_description():
     # Declare arguments
@@ -75,7 +90,7 @@ def generate_launch_description():
     control_node_remapped = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description,robot_controllers],
+        parameters=[robot_controllers, robot_description],
         output="both",
         remappings=[
             ("/bicycle_steering_controller/tf_odometry", "/tf"),
@@ -85,7 +100,7 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description,robot_controllers],
+        parameters=[robot_controllers, robot_description],
         output="both",
         remappings=[],
         condition=UnlessCondition(remap_odometry_tf),
@@ -132,6 +147,18 @@ def generate_launch_description():
             on_exit=[robot_bicycle_controller_spawner],
         )
     )
+    gazebo = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')])#,
+    #        launch_arguments={'world': "my_bot/worlds/obstacles.world"}.items()
+    )
+    spawn_entity = launch_ros.actions.Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=['-entity', '', '-topic', 'robot_description'],
+        output='screen'
+    )
+    
 
     nodes = [
         control_node,
@@ -140,6 +167,8 @@ def generate_launch_description():
         joint_state_broadcaster_spawner,
         delay_rviz_after_joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
+        gazebo,
+        spawn_entity,
     ]
 
     return LaunchDescription(declared_arguments + nodes)
